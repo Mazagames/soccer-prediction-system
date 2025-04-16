@@ -1,9 +1,12 @@
-from flask import Flask, request, jsonify
-from flask_httpauth import HTTPBasicAuth
 import logging
 import joblib
-import os  # Add this import
+import os
+import threading
+from flask import Flask, request, jsonify
+from flask_httpauth import HTTPBasicAuth
+import streamlit.cli as stcli
 
+# Create Flask app
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
@@ -12,7 +15,6 @@ logging.basicConfig(filename="logs.txt", level=logging.INFO)
 @app.route("/")
 def index():
     return "Soccer Prediction API is running! Try sending a POST request to /predict"
-
 
 # Load model
 model_filename = "soccer_model_best.joblib"
@@ -69,6 +71,17 @@ def predict():
             500,
         )
 
-if __name__ == "__main__":
-  app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
+# Function to run Streamlit
+def run_streamlit():
+    stcli.main(args=["run", "app.py"])
 
+# Function to run Flask app
+def run_flask():
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
+
+if __name__ == "__main__":
+    # Run Flask in a separate thread
+    threading.Thread(target=run_flask).start()
+
+    # Run Streamlit in the main thread
+    run_streamlit()
