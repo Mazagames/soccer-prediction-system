@@ -9,6 +9,11 @@ auth = HTTPBasicAuth()
 
 logging.basicConfig(filename="logs.txt", level=logging.INFO)
 
+@app.route("/")
+def index():
+    return "Soccer Prediction API is running! Try sending a POST request to /predict"
+
+
 # Load model
 model_filename = "soccer_model_best.joblib"
 if os.path.exists(model_filename):
